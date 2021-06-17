@@ -1,0 +1,41 @@
+version: "3.0"
+services:
+        database: 
+                container_name: postgres 
+                restart: always
+                image: postgres:latest
+                ports: 
+                        - 5432:5432
+                volumes:
+                        - ./data:/var/lib/postgresql/data
+                environment:
+                        POSTGRES_PASSWORD: example
+                networks: 
+                        - extern
+
+        adminer:
+                depends_on: 
+                        - database
+                image: adminer
+                restart: always
+                ports:
+                        - 8080:8080
+                networks: 
+                        - extern
+
+        backend:
+                depends_on: 
+                        - database
+                build: ./server/.
+                container_name: backend
+                environment:
+                        - PUID=1000
+                        - PGID=1000
+                ports:
+                        - 5000:5000
+                networks: 
+                        - extern
+
+networks:
+        extern:
+                external: true
